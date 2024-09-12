@@ -1,3 +1,6 @@
+
+import datetime as dt
+
 from rest_framework import serializers
 
 from cats.models import Cat, Owner, Achievement, AchievementCat
@@ -11,14 +14,20 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 
 class CatSerializer(serializers.ModelSerializer):
-    # owner = serializers.StringRelatedField(read_only=True)
     achievements = AchievementSerializer(many=True, required=False)
+    age = serializers.SerializerMethodField()
 
     class Meta:
         model = Cat
-        fields = ('id', 'name', 'color', 'birth_year', 'owner', 'achievements')
+        fields = (
+            'id', 'name', 'color', 'birth_year', 'owner', 'achievements', 'age'
+        )
 
     def create(self, validated_data):
+        if 'achievements' not in self.initial_data:
+            # То создаём запись о котике без его достижений
+            cat = Cat.objects.create(**validated_data)
+            return cat
         # Уберём список достижений из словаря validated_data и сохраним его
         achievements = validated_data.pop('achievements')
 
@@ -34,7 +43,10 @@ class CatSerializer(serializers.ModelSerializer):
             # Не забыв указать к какому котику оно относится
             AchievementCat.objects.create(
                 achievement=current_achievement, cat=cat)
-        return cat 
+        return cat
+
+    def get_age(self, obj):
+        return dt.datetime.now().year - obj.birth_year
 
 
 class OwnerSerializer(serializers.ModelSerializer):
