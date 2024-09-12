@@ -6,6 +6,8 @@ from rest_framework import serializers
 
 from cats.models import Cat, Owner, Achievement, AchievementCat
 
+from cats.models import CHOICES
+
 
 class Hex2NameColor(serializers.Field):
     # При чтении данных ничего не меняем - просто возвращаем как есть
@@ -36,7 +38,8 @@ class AchievementSerializer(serializers.ModelSerializer):
 class CatSerializer(serializers.ModelSerializer):
     achievements = AchievementSerializer(many=True, required=False)
     age = serializers.SerializerMethodField()
-    color = Hex2NameColor()
+    # Теперь поле примет только значение, упомянутое в списке CHOICES
+    color = serializers.ChoiceField(choices=CHOICES)
 
     class Meta:
         model = Cat
@@ -68,6 +71,14 @@ class CatSerializer(serializers.ModelSerializer):
 
     def get_age(self, obj):
         return dt.datetime.now().year - obj.birth_year
+
+
+class CatListSerializer(serializers.ModelSerializer):
+    color = serializers.ChoiceField(choices=CHOICES)
+
+    class Meta:
+        model = Cat
+        fields = ('id', 'name', 'color')
 
 
 class OwnerSerializer(serializers.ModelSerializer):
