@@ -1,6 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import mixins
+
+from django.shortcuts import get_object_or_404
 
 from cats.models import Cat, Owner
 from cats.serializers import CatSerializer, CatListSerializer, OwnerSerializer
@@ -29,7 +32,29 @@ class CatViewSet(viewsets.ModelViewSet):
         # А если запрошенное действие — не 'list', применяем CatSerializer
         return CatSerializer
 
+    def list(self, request):
+        queryset = Cat.objects.all()
+        serializer = CatSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = Cat.objects.all()
+        cat = get_object_or_404(queryset, pk=pk)
+        serializer = CatSerializer(cat)
+        return Response(serializer.data) 
+
 
 class OwnerViewSet(viewsets.ModelViewSet):
     queryset = Owner.objects.all()
     serializer_class = OwnerSerializer
+
+
+class CreateRetrieveViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                            viewsets.GenericViewSet):
+    # В теле класса никакой код не нужен! Пустячок, а приятно.
+    pass
+
+
+class LightCatViewSet(CreateRetrieveViewSet):
+    queryset = Cat.objects.all()
+    serializer_class = CatSerializer
