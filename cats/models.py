@@ -30,12 +30,16 @@ class Cat(models.Model):
     color = models.CharField(max_length=16)
     birth_year = models.IntegerField()
 
-    owner = models.ForeignKey(Owner, related_name='cats', on_delete=models.CASCADE)
-    achievements = models.ManyToManyField(Achievement, through='AchievementCat')
+    owner = models.ForeignKey(
+        Owner, related_name='cats', on_delete=models.CASCADE
+    )
+    achievements = models.ManyToManyField(
+        Achievement, through='AchievementCat'
+    )
 
     def __str__(self) -> str:
         return self.name
-    
+
 
 class AchievementCat(models.Model):
     achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)

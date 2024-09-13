@@ -19,13 +19,14 @@ class CatViewSet(viewsets.ModelViewSet):
     def recent_white_cats(self, request):
         # Нужно получить записи о пяти котиках белого цвета
         cats = Cat.objects.filter(color='White')[:5]
-        # Передадим queryset cats сериализатору 
+        # Передадим queryset cats сериализатору
         # и разрешим работу со списком объектов
         serializer = self.get_serializer(cats, many=True)
         return Response(serializer.data)
 
     def get_serializer_class(self):
-        # Если запрошенное действие (action) — получение списка объектов ('list')
+        # Если запрошенное действие (action)
+        # — получение списка объектов ('list')
         if self.action == 'list':
             # ...то применяем CatListSerializer
             return CatListSerializer
@@ -41,7 +42,7 @@ class CatViewSet(viewsets.ModelViewSet):
         queryset = Cat.objects.all()
         cat = get_object_or_404(queryset, pk=pk)
         serializer = CatSerializer(cat)
-        return Response(serializer.data) 
+        return Response(serializer.data)
 
 
 class OwnerViewSet(viewsets.ModelViewSet):
